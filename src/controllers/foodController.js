@@ -22,33 +22,46 @@ module.exports={
             res.status(500).json({status:false,message:error.message})
         }
     },
-    getRandomFood:async(req,res)=>{
-        const code=req.params.code
+    getRandomFood: async (req, res) => {
+        console.log("random");
         try {
-            let foods;
-            if(code){
-               foods=await Food.aggregate([
-                {$match:{code:code,isAvailable:true}},
-                {$sample:{size:5}},
-                {$project:{__v:0}}
-               ]) 
+            let randomFoodList = [];
+    
+            if (req.params.code) {
+                // Ensure that req.params.code is valid if you are matching against an ObjectId
+                const matchStage = ObjectId.isValid(req.params.code) 
+                    ? { $match: { code: ObjectId(req.params.code) } } 
+                    : { $match: { code: req.params.code } };
+    
+                randomFoodList = await Food.aggregate([
+                    matchStage,
+                    { $sample: { size: 3 } },
+                    { $project: { __v: 0 } }
+                ]);
             }
-            if(foods.length===0){
-                foods=await Food.aggregate([
-                    {$match:{isAvailable:true}},
-                    {$sample:{size:5}},
-                    {$project:{__v:0}}
-                   ]) 
+    
+            if (!randomFoodList.length) {
+                randomFoodList = await Food.aggregate([
+                    { $sample: { size: 5 } },
+                    { $project: { __v: 0 } }
+                ]);
             }
-            res.status(200).json(foods)
+    
+            if (randomFoodList.length) {
+                res.status(200).json(randomFoodList);
+            } else {
+                res.status(404).json({ status: false, message: "No Foods found" });
+            }
+    
         } catch (error) {
-            res.status(500).json({status:false,message:error.message})
+            res.status(500).json({ status: false, message: error.message });
         }
     },
+    
     getFoodsByRestaurant:async(req,res)=>{
-        const restaurant=req.params.restaurant
+        const id=req.params.id
         try {
-            const foods=await Food.find({restaurant:restaurant})
+            const foods=await Food.find({restaurant:id})
             res.status(200).json(foods)
         } catch (error) {
             res.status(500).json({status:false,message:error.message})
@@ -57,6 +70,7 @@ module.exports={
     },
     getFoodsByCategoryAndCode:async(req,res)=>{
         const{category,code}=req.params;
+        console.log(category,code)
         try {
             const foods=await Food.aggregate([
                 {$match:{category:category,code:code,isAvailable:true}},
@@ -72,6 +86,7 @@ module.exports={
     },
     searchFoods:async(req,res)=>{
         const search=req.params.search;
+        console.log(search)
         try {
             const results=await Food.aggregate([
                 {
@@ -111,6 +126,17 @@ module.exports={
                 ])
             }
             res.status(200).json(foods)
+        } catch (error) {
+            res.status(500).json({status:false,message:error.message})
+        }
+    },
+    getAllFoodsByCode:async(req,res)=>{
+        
+         const code=req.params.code;
+        console.log(code)
+        try {
+            const foodList=await Food.find({code:code})
+            return res.status(200).json(foodList)
         } catch (error) {
             res.status(500).json({status:false,message:error.message})
         }

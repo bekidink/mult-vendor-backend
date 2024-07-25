@@ -11,7 +11,7 @@ module.exports={
     },
     getAllCategories:async(req,res)=>{
         try {
-            const categories=await Category.find({title:{$ne:"More"} },{__v:0});
+            const categories=await Category.find();
             res.status(200).json(categories)
         } catch (error) {
             res.status(500).json({status:false,message:error.message})
