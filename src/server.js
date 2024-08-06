@@ -12,6 +12,7 @@ const userRoute=require('./routes/user')
 const addressRoute=require('./routes/address')
 const cartRoute=require('./routes/cart')
 const orderRoute=require('./routes/order')
+const stripeRoute=require('./routes/stripe')
 dotenv.config();
 mongoose.connect(process.env.DB).then(()=>{
 console.log("Database Connected")
@@ -29,4 +30,5 @@ app.use("/api/users",userRoute)
 app.use("/api/address",addressRoute)
 app.use("/api/cart",cartRoute)
 app.use("/api/order",orderRoute)
+app.use("/api/stripe",stripeRoute)
 app.listen(port,()=>console.log(`Foodly backend is running ${port}`))
