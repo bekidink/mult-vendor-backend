@@ -12,12 +12,16 @@ const userRoute=require('./routes/user')
 const addressRoute=require('./routes/address')
 const cartRoute=require('./routes/cart')
 const orderRoute=require('./routes/order')
+const stripeRoute=require('./routes/stripe')
+const cors=require('cors')
+const https = require('https');
 dotenv.config();
 mongoose.connect(process.env.DB).then(()=>{
 console.log("Database Connected")
 }).catch((err)=>{
     console.log(err)
 })
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use("/api/category",categoryRoute)
@@ -29,4 +33,5 @@ app.use("/api/users",userRoute)
 app.use("/api/address",addressRoute)
 app.use("/api/cart",cartRoute)
 app.use("/api/order",orderRoute)
+app.use("/api/stripe",stripeRoute)
 app.listen(port,()=>console.log(`Foodly backend is running ${port}`))
